@@ -1,10 +1,9 @@
 import { JwtPayload } from 'jsonwebtoken'
+import { TokenType } from '~/constants/enum'
 
 export interface TokenPayload extends JwtPayload {
   user_id: string
-  activationCode: string
-  // token_type: TokenType
-  // verify: UserVerifyStatus
+  token_type?: TokenType
 }
 export interface ActivationTokenPayload extends JwtPayload {
   name: string
@@ -23,4 +22,8 @@ export interface RegisterRequestPayload {
 export interface ActivationRequestPayload {
   activationToken: string
   activationCode: string
+}
+export interface LoginRequestPayload {
+  email: string
+  password: string
 }
