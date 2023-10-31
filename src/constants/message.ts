@@ -1,5 +1,6 @@
 export const USER_MESSAGE = {
-  EMAIL_IS_IN_VALID: 'email is invalid',
+  EMAIL_OR_PASSWORD: 'Email or password is incorrect',
+  EMAIL_IS_INVALID: 'email is invalid',
   NAME_MUST_BE_STRING: 'name must be a string',
   NAME_IS_REQUIRED: 'name is required',
   PASSWORD_IS_REQUIRED: 'Password is required',
@@ -15,5 +16,12 @@ export const USER_MESSAGE = {
   CONFIRM_PASSWORD_NOT_MATCHED: 'Confirm password does not match password',
   AVATAR_MUST_BE_STRING: 'Avatar must be a string',
   REGISTER_SUCCESSFUL: 'Register successful',
-  ACTIVE_ACCOUNT: 'please check your email to active your account'
+  ACTIVE_ACCOUNT: 'please check your email to active your account',
+  LOGOUT_SUCCESSFUL: 'Logout successful',
+  LOGIN_SUCCESSFUL: 'Login successful',
+  ACCESS_TOKEN_IS_REQUIRED: 'Access token is required',
+  REFRESH_TOKEN_IS_REQUIRED: 'Refresh token is required',
+  REFRESH_TOKEN_IS_INVALID: 'Refresh token is invalid',
+  ACCESS_TOKEN_IS_INVALID: 'Access token is invalid',
+  INVALID_REQUEST: 'Invalid request'
 } as const
