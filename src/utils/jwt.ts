@@ -32,8 +32,12 @@ export const signRefreshToken = ({ payload, key, options = { algorithm: 'HS256' 
       if (error) {
         throw reject(error)
       }
-      client.set(payload.user_id, token as string, 'EX', 100 * 24 * 60 * 60)
-      resolve(token as string)
+      client.set('rft_' + payload.user_id, token as string, 'EX', 100 * 24 * 60 * 60, (err, result) => {
+        if (err) {
+          throw reject(error)
+        }
+        resolve(token as string)
+      })
     })
   })
 }
@@ -58,7 +62,7 @@ export const createTokenPair = async (payload: TokenPayload, publicKey: string, 
           algorithm: 'HS256'
         }
       }),
-      signToken({
+      signRefreshToken({
         payload: { ...payload, tokenType: TokenType.RefreshToken },
         key: privateKey,
         options: {

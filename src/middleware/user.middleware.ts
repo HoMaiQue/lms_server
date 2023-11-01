@@ -134,7 +134,7 @@ export const accessTokenValidator = validate(
               const public_key = await client.get('puk_' + user_id)
 
               if (!user) {
-                throw new NotFoundError(USER_MESSAGE.INVALID_REQUEST)
+                throw new AuthFailureError(USER_MESSAGE.INVALID_REQUEST, 401)
               }
               const access_token = value.split(' ')[1]
               if (!access_token) {
@@ -163,3 +163,32 @@ export const authorizeRoles = (...roles: string[]) => {
     return next()
   }
 }
+
+export const refreshTokenValidator = validate(
+  checkSchema(
+    {
+      'x-rtoken-id': {
+        trim: true,
+        custom: {
+          options: async (value, { req }) => {
+            if (!value) {
+              throw new AuthFailureError(USER_MESSAGE.ACCESS_TOKEN_IS_REQUIRED)
+            }
+            const refresh_token = (req as any).headers[HEADER.REFRESH_TOKEN]
+            const user_id = (req as any).headers[HEADER.CLIENT_ID]
+            const user = await client.get(user_id)
+            const private_key = await client.get('prk_' + user_id)
+
+            if (!user) {
+              throw new NotFoundError(USER_MESSAGE.INVALID_REQUEST)
+            }
+            const decoded_refresh_token = await verifyJWT({ token: refresh_token, keySecret: private_key as string })
+            ;(req as Request).decoded_refresh_token = decoded_refresh_token
+            ;(req as Request).refresh_token = refresh_token
+          }
+        }
+      }
+    },
+    ['headers']
+  )
+)

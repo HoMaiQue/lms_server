@@ -23,5 +23,6 @@ export const USER_MESSAGE = {
   REFRESH_TOKEN_IS_REQUIRED: 'Refresh token is required',
   REFRESH_TOKEN_IS_INVALID: 'Refresh token is invalid',
   ACCESS_TOKEN_IS_INVALID: 'Access token is invalid',
-  INVALID_REQUEST: 'Invalid request'
+  INVALID_REQUEST: 'Invalid request',
+  GET_TOKEN_SUCCESS: 'Get token successfully'
 } as const
