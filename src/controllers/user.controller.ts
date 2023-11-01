@@ -30,11 +30,19 @@ class UserController {
 
   logout = async (req: Request, res: Response) => {
     const decoded_authorization = req.decoded_authorization
-    console.log(decoded_authorization)
     const user_id = decoded_authorization.user_id
     return new Ok({
       message: USER_MESSAGE.LOGOUT_SUCCESSFUL,
       metaData: await UserService.logout(user_id, res)
+    }).send(res)
+  }
+  refreshToken = async (req: Request, res: Response) => {
+    const decoded_refresh_token = req.decoded_refresh_token
+    const user_id = decoded_refresh_token.user_id
+    const refresh_token = req.refresh_token as string
+    return new Ok({
+      message: USER_MESSAGE.GET_TOKEN_SUCCESS,
+      metaData: await UserService.refreshToken(user_id, refresh_token)
     }).send(res)
   }
 }

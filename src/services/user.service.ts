@@ -1,7 +1,7 @@
 import { Response } from 'express'
 import { HydratedDocument } from 'mongoose'
 import crypto from 'node:crypto'
-import { BadRequestError } from '~/core/error.response'
+import { AuthFailureError, BadRequestError, ForbiddenError } from '~/core/error.response'
 import client from '~/dbs/init.redis'
 import { ActivationTokenPayload, RegisterRequestPayload } from '~/models/request/user.request'
 import userSchema, { UserDocument } from '~/models/schemas/user.schema'
@@ -76,6 +76,42 @@ class UserService {
       client.del('refreshTokenUsed_' + user_id)
     ])
     return true
+  }
+
+  async refreshToken(user_id: string, refresh_token: string) {
+    const isExist = await client.sismember('refreshTokenUsed_' + user_id, refresh_token)
+
+    if (isExist) {
+      await Promise.all([
+        client.del(user_id),
+        client.del('prk_' + user_id),
+        client.del('puk_' + user_id),
+        client.del('refreshTokenUsed_' + user_id),
+        client.del('rft_' + user_id)
+      ])
+      throw new ForbiddenError('Something went wrong! Please login again')
+    }
+
+    const refreshTokenStore = await client.get('rft_' + user_id)
+    if (refreshTokenStore !== refresh_token) {
+      throw new AuthFailureError('invalid request')
+    }
+    const private_key = (await client.get('prk_' + user_id)) as string
+    const public_key = (await client.get('puk_' + user_id)) as string
+    const payloadCreateToken = {
+      user_id
+    }
+
+    const resultCreateToken = await createTokenPair(payloadCreateToken, public_key, private_key)
+    await Promise.all([
+      client.sadd('refreshTokenUsed_' + user_id, resultCreateToken?.refresh_token as string),
+      client.set('rft_' + user_id, resultCreateToken?.refresh_token as string)
+    ])
+
+    return {
+      user_id,
+      tokens: resultCreateToken
+    }
   }
 }
 

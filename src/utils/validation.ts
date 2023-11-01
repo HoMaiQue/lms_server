@@ -1,8 +1,8 @@
 import express from 'express'
-import { validationResult, ValidationChain } from 'express-validator'
+import { ValidationChain, validationResult } from 'express-validator'
 import { RunnableValidationChains } from 'express-validator/src/middlewares/schema'
 import { StatusCode } from '~/constants/statusCode'
-import { ErrorResponse, ErrorResponseCustom, UnprocessableEntityError } from '~/core/error.response'
+import { ErrorResponse, UnprocessableEntityError } from '~/core/error.response'
 // can be reused by many routes
 
 // sequential processing, stops running validations chain if the previous one fails.
@@ -21,7 +21,8 @@ export const validate = (validations: RunnableValidationChains<ValidationChain>)
 
     for (const key in errorObject) {
       const { msg } = errorObject[key]
-      if (msg instanceof ErrorResponseCustom && msg.status !== StatusCode.UNPROCESSABLE_ENTITY) {
+      if (msg instanceof ErrorResponse && msg.status !== StatusCode.UNPROCESSABLE_ENTITY) {
+        console.log(1234)
         return next(msg)
       }
       entityError.errors[key] = errorObject[key]
