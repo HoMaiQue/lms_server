@@ -36,6 +36,6 @@ const pro: EnvironmentConfig = {
 }
 
 const config: Record<string, EnvironmentConfig> = { dev, pro }
-const env: string = process.env.NODE_ENV || 'dev'
+const env: string = process.env.NODE_ENV || 'development'
 
 export default config[env]

@@ -7,9 +7,9 @@ import morgan from 'morgan'
 import cors from 'cors'
 import instanceMongoDB from '~/dbs/init.mongodb'
 import router from './routes'
+// import client from './dbs/init.redis'
 // import { initFolder } from './utils/file'
 // import '~/utils/s3'
-import redis from '~/dbs/init.redis'
 // import router from
 dotenv.config()
 const app = express()
@@ -34,7 +34,7 @@ app.use(
 )
 // init db
 instanceMongoDB
-// redis
+// client
 
 //init router
 app.use('/', router)

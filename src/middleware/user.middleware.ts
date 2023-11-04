@@ -1,7 +1,20 @@
+import { NextFunction, Request, Response } from 'express'
 import { ParamSchema, checkSchema } from 'express-validator'
+import { JsonWebTokenError } from 'jsonwebtoken'
+import { capitalize } from 'lodash'
 import { USER_MESSAGE } from '~/constants/message'
-import { findEmail } from '~/models/repositories/user.repo'
+import { AuthFailureError, ForbiddenError, NotFoundError } from '~/core/error.response'
+import client from '~/dbs/init.redis'
+import { findUserByCondition } from '~/models/repositories/user.repo'
+import { hashPassword } from '~/utils/crypto'
+import { verifyJWT } from '~/utils/jwt'
 import { validate } from '~/utils/validation'
+const HEADER = {
+  API_KEY: 'x-api-key',
+  CLIENT_ID: 'x-client-id',
+  AUTHORIZATION: 'authorization',
+  REFRESH_TOKEN: 'x-rtoken-id'
+}
 const passwordSchema: ParamSchema = {
   isString: { errorMessage: USER_MESSAGE.PASSWORD_MUST_BE_STRING },
   notEmpty: { errorMessage: USER_MESSAGE.PASSWORD_IS_REQUIRED },
@@ -54,12 +67,12 @@ export const registerValidator = validate(
   checkSchema(
     {
       email: {
-        isEmail: { errorMessage: USER_MESSAGE.EMAIL_IS_IN_VALID },
+        isEmail: { errorMessage: USER_MESSAGE.EMAIL_IS_INVALID },
         trim: true,
         custom: {
           options: async (value) => {
-            const foundEmail = await findEmail(value)
-            if (!foundEmail) {
+            const foundEmail = await findUserByCondition({ email: value })
+            if (foundEmail) {
               throw new Error('Email already exists')
             }
           }
@@ -79,5 +92,116 @@ export const registerValidator = validate(
       }
     },
     ['body']
+  )
+)
+
+export const loginValidator = validate(
+  checkSchema({
+    email: {
+      isEmail: { errorMessage: USER_MESSAGE.EMAIL_IS_INVALID },
+      trim: true,
+      custom: {
+        options: async (value, { req }) => {
+          const user = await findUserByCondition({
+            email: value,
+            password: hashPassword(req.body.password)
+          })
+          if (!user) {
+            throw new Error(USER_MESSAGE.EMAIL_OR_PASSWORD)
+          }
+          req.user = user
+          return true
+        }
+      }
+    },
+    password: passwordSchema
+  })
+)
+
+export const accessTokenValidator = validate(
+  checkSchema(
+    {
+      Authorization: {
+        trim: true,
+        custom: {
+          options: async (value: string, { req }) => {
+            try {
+              if (!value) {
+                throw new AuthFailureError(USER_MESSAGE.ACCESS_TOKEN_IS_REQUIRED)
+              }
+              const user_id = (req as any).headers[HEADER.CLIENT_ID]
+              // const user = await client.get(user_id)
+              // const public_key = await client.get('puk_' + user_id)
+              const [user, public_key] = await client.hmget(user_id, 'user', 'public_key')
+
+              const user_parse = JSON.parse(user as string)
+              // const user = await client.get(user_id)
+              // const private_key = await client.get('prk_' + user_id)
+
+              if (!user_parse) {
+                throw new NotFoundError(USER_MESSAGE.INVALID_REQUEST)
+              }
+
+              const access_token = value.split(' ')[1]
+              if (!access_token) {
+                throw new AuthFailureError(USER_MESSAGE.ACCESS_TOKEN_IS_INVALID)
+              }
+              const decoded_authorization = await verifyJWT({ token: access_token, keySecret: public_key as string })
+              ;(req as Request).decoded_authorization = decoded_authorization
+              return true
+            } catch (error) {
+              throw new AuthFailureError(capitalize((error as JsonWebTokenError).message))
+            }
+          }
+        }
+      }
+    },
+    ['headers']
+  )
+)
+
+export const authorizeRoles = (...roles: string[]) => {
+  return (req: Request, res: Response, next: NextFunction) => {
+    const user = req.user
+    if (!roles.includes(user?.role as string)) {
+      throw new ForbiddenError('Access denied')
+    }
+    return next()
+  }
+}
+
+export const refreshTokenValidator = validate(
+  checkSchema(
+    {
+      'x-rtoken-id': {
+        trim: true,
+        custom: {
+          options: async (value, { req }) => {
+            try {
+              if (!value) {
+                throw new AuthFailureError(USER_MESSAGE.ACCESS_TOKEN_IS_REQUIRED)
+              }
+              const refresh_token = (req as any).headers[HEADER.REFRESH_TOKEN]
+              const user_id = (req as any).headers[HEADER.CLIENT_ID]
+              const [user, private_key] = await client.hmget(user_id, 'user', 'private_key')
+
+              const user_parse = JSON.parse(user as string)
+              // const user = await client.get(user_id)
+              // const private_key = await client.get('prk_' + user_id)
+
+              if (!user_parse) {
+                throw new NotFoundError(USER_MESSAGE.INVALID_REQUEST)
+              }
+              const decoded_refresh_token = await verifyJWT({ token: refresh_token, keySecret: private_key as string })
+              ;(req as Request).decoded_refresh_token = decoded_refresh_token
+              ;(req as Request).refresh_token = refresh_token
+            } catch (error) {
+              throw new AuthFailureError(capitalize((error as JsonWebTokenError).message))
+            }
+          }
+        }
+      }
+    },
+    ['headers']
   )
 )

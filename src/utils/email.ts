@@ -6,7 +6,6 @@ import fs from 'fs'
 import path from 'path'
 config()
 export const verifyEmailTemplate = fs.readFileSync(path.resolve('src/templates/verify-email.html'), 'utf8')
-export const forgotPasswordTemplate = fs.readFileSync(path.resolve('src/templates/forgot-password.html'), 'utf8')
 
 // Create SES service object.
 const sesClient = new SESClient({
@@ -83,14 +82,4 @@ export const sendVerifyEmailRegister = async (
     // .replace('{{link}}', `${process.env.CLIENT_URL}/verify-email?token=${email_verify_token}`)
   )
 }
-export const sendForgotPasswordEmail = async (
-  toAddress: string,
-  forgot_password_token: string,
-  template: string = forgotPasswordTemplate
-) => {
-  return sendVerifyEmail(
-    toAddress,
-    'Forgot Password',
-    template.replace('{{link}}', `${process.env.CLIENT_URL}/reset-password?token=${forgot_password_token}`)
-  )
-}
+
