@@ -130,12 +130,18 @@ export const accessTokenValidator = validate(
                 throw new AuthFailureError(USER_MESSAGE.ACCESS_TOKEN_IS_REQUIRED)
               }
               const user_id = (req as any).headers[HEADER.CLIENT_ID]
-              const user = await client.get(user_id)
-              const public_key = await client.get('puk_' + user_id)
+              // const user = await client.get(user_id)
+              // const public_key = await client.get('puk_' + user_id)
+              const [user, public_key] = await client.hmget(user_id, 'user', 'public_key')
 
-              if (!user) {
-                throw new AuthFailureError(USER_MESSAGE.INVALID_REQUEST, 401)
+              const user_parse = JSON.parse(user as string)
+              // const user = await client.get(user_id)
+              // const private_key = await client.get('prk_' + user_id)
+
+              if (!user_parse) {
+                throw new NotFoundError(USER_MESSAGE.INVALID_REQUEST)
               }
+
               const access_token = value.split(' ')[1]
               if (!access_token) {
                 throw new AuthFailureError(USER_MESSAGE.ACCESS_TOKEN_IS_INVALID)
@@ -171,20 +177,27 @@ export const refreshTokenValidator = validate(
         trim: true,
         custom: {
           options: async (value, { req }) => {
-            if (!value) {
-              throw new AuthFailureError(USER_MESSAGE.ACCESS_TOKEN_IS_REQUIRED)
-            }
-            const refresh_token = (req as any).headers[HEADER.REFRESH_TOKEN]
-            const user_id = (req as any).headers[HEADER.CLIENT_ID]
-            const user = await client.get(user_id)
-            const private_key = await client.get('prk_' + user_id)
+            try {
+              if (!value) {
+                throw new AuthFailureError(USER_MESSAGE.ACCESS_TOKEN_IS_REQUIRED)
+              }
+              const refresh_token = (req as any).headers[HEADER.REFRESH_TOKEN]
+              const user_id = (req as any).headers[HEADER.CLIENT_ID]
+              const [user, private_key] = await client.hmget(user_id, 'user', 'private_key')
 
-            if (!user) {
-              throw new NotFoundError(USER_MESSAGE.INVALID_REQUEST)
+              const user_parse = JSON.parse(user as string)
+              // const user = await client.get(user_id)
+              // const private_key = await client.get('prk_' + user_id)
+
+              if (!user_parse) {
+                throw new NotFoundError(USER_MESSAGE.INVALID_REQUEST)
+              }
+              const decoded_refresh_token = await verifyJWT({ token: refresh_token, keySecret: private_key as string })
+              ;(req as Request).decoded_refresh_token = decoded_refresh_token
+              ;(req as Request).refresh_token = refresh_token
+            } catch (error) {
+              throw new AuthFailureError(capitalize((error as JsonWebTokenError).message))
             }
-            const decoded_refresh_token = await verifyJWT({ token: refresh_token, keySecret: private_key as string })
-            ;(req as Request).decoded_refresh_token = decoded_refresh_token
-            ;(req as Request).refresh_token = refresh_token
           }
         }
       }
