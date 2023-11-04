@@ -42,7 +42,7 @@ class UserController {
     const refresh_token = req.refresh_token as string
     return new Ok({
       message: USER_MESSAGE.GET_TOKEN_SUCCESS,
-      metaData: await UserService.refreshToken(user_id, refresh_token)
+      metaData: await UserService.refreshToken(user_id, refresh_token, res)
     }).send(res)
   }
 }
