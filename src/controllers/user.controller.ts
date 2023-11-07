@@ -1,6 +1,6 @@
 import { Request, Response } from 'express'
 import { Created, Ok } from '~/core/success.response'
-import { ActivationTokenPayload, RegisterRequestPayload } from '~/models/request/user.request'
+import { ActivationTokenPayload, RegisterRequestPayload, SocialAuthRequestPayload } from '~/models/request/user.request'
 import UserService from '~/services/user.service'
 import { ParamsDictionary } from 'express-serve-static-core'
 import { USER_MESSAGE } from '~/constants/message'
@@ -43,6 +43,21 @@ class UserController {
     return new Ok({
       message: USER_MESSAGE.GET_TOKEN_SUCCESS,
       metaData: await UserService.refreshToken(user_id, refresh_token, res)
+    }).send(res)
+  }
+  getInfo = async (req: Request, res: Response) => {
+    const user = req.user as HydratedDocument<UserDocument>
+    const user_id = user._id.toString()
+    return new Ok({
+      message: USER_MESSAGE.GET_INFO_SUCCESS,
+      metaData: await UserService.getInfo(user_id)
+    }).send(res)
+  }
+
+  socialAuth = async (req: Request<ParamsDictionary, any, SocialAuthRequestPayload>, res: Response) => {
+    return new Ok({
+      message: USER_MESSAGE.LOGIN_SUCCESSFUL,
+      metaData: await UserService.socialAuth(req.body, res)
     }).send(res)
   }
 }

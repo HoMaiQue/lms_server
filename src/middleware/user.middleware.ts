@@ -130,13 +130,9 @@ export const accessTokenValidator = validate(
                 throw new AuthFailureError(USER_MESSAGE.ACCESS_TOKEN_IS_REQUIRED)
               }
               const user_id = (req as any).headers[HEADER.CLIENT_ID]
-              // const user = await client.get(user_id)
-              // const public_key = await client.get('puk_' + user_id)
               const [user, public_key] = await client.hmget(user_id, 'user', 'public_key')
 
               const user_parse = JSON.parse(user as string)
-              // const user = await client.get(user_id)
-              // const private_key = await client.get('prk_' + user_id)
 
               if (!user_parse) {
                 throw new NotFoundError(USER_MESSAGE.INVALID_REQUEST)
@@ -148,6 +144,7 @@ export const accessTokenValidator = validate(
               }
               const decoded_authorization = await verifyJWT({ token: access_token, keySecret: public_key as string })
               ;(req as Request).decoded_authorization = decoded_authorization
+              req.user = user_parse
               return true
             } catch (error) {
               throw new AuthFailureError(capitalize((error as JsonWebTokenError).message))
@@ -186,9 +183,6 @@ export const refreshTokenValidator = validate(
               const [user, private_key] = await client.hmget(user_id, 'user', 'private_key')
 
               const user_parse = JSON.parse(user as string)
-              // const user = await client.get(user_id)
-              // const private_key = await client.get('prk_' + user_id)
-
               if (!user_parse) {
                 throw new NotFoundError(USER_MESSAGE.INVALID_REQUEST)
               }

@@ -1,12 +1,14 @@
 import { Response } from 'express'
 import { HydratedDocument } from 'mongoose'
 import crypto from 'node:crypto'
-import { AuthFailureError, BadRequestError, ForbiddenError } from '~/core/error.response'
+import { AuthFailureError, BadRequestError, ForbiddenError, NotFoundError } from '~/core/error.response'
 import client from '~/dbs/init.redis'
-import { ActivationTokenPayload, RegisterRequestPayload } from '~/models/request/user.request'
+import { createUser, findUserByCondition, getUserById } from '~/models/repositories/user.repo'
+import { ActivationTokenPayload, RegisterRequestPayload, SocialAuthRequestPayload } from '~/models/request/user.request'
 import userSchema, { UserDocument } from '~/models/schemas/user.schema'
 import { hashPassword, randomCode } from '~/utils/crypto'
 import { sendVerifyEmailRegister } from '~/utils/email'
+import { convertToObjectIdMongodb } from '~/utils/formatter'
 import { createTokenPair, handleOptionCookie, signEmailVerifyActivationCode, verifyJWT } from '~/utils/jwt'
 
 class UserService {
@@ -32,12 +34,11 @@ class UserService {
       throw new BadRequestError('Invalid activation code')
     }
     const password = hashPassword(decodedActivationAccount.password)
-    const { name, email, avatar } = decodedActivationAccount
-    const user = await userSchema.create({
+    const { name, email } = decodedActivationAccount
+    const user = await createUser({
       name,
       email,
-      password,
-      avatar: avatar || ''
+      password
     })
 
     return user
@@ -57,11 +58,6 @@ class UserService {
       public_key,
       refreshTokenUsed: JSON.stringify([])
     })
-    // await Promise.all([
-    //   client.set(user._id.toString(), JSON.stringify(user)),
-    //   client.set('prk_' + user._id.toString(), private_key),
-    //   client.set('puk_' + user._id.toString(), public_key)
-    // ])
 
     const optionCookie = handleOptionCookie()
     res.cookie('access_token', resultCreateToken?.access_token, optionCookie.accessTokenOptions)
@@ -77,12 +73,6 @@ class UserService {
     res.cookie('refresh_token', '', { maxAge: 1 })
 
     await client.del(user_id)
-    // await Promise.all([
-    //   client.del(user_id),
-    //   client.del('prk_' + user_id),
-    //   client.del('puk_' + user_id),
-    //   client.del('refreshTokenUsed_' + user_id)
-    // ])
     return true
   }
 
@@ -91,14 +81,7 @@ class UserService {
     const isExist = refreshTokenUsed?.includes(refresh_token)
 
     if (isExist) {
-      await Promise.all([
-        // client.del(user_id),
-        // client.del('prk_' + user_id),
-        // client.del('puk_' + user_id),
-        // client.del('refreshTokenUsed_' + user_id),
-        client.del(user_id),
-        client.del('rft_' + user_id)
-      ])
+      await Promise.all([client.del(user_id), client.del('rft_' + user_id)])
       throw new ForbiddenError('Something went wrong! Please login again')
     }
 
@@ -107,8 +90,7 @@ class UserService {
       throw new AuthFailureError('invalid request')
     }
     const [private_key, public_key] = await client.hmget(user_id, 'private_key', 'public_key')
-    // const private_key = (await client.get('prk_' + user_id)) as string
-    // const public_key = (await client.get('puk_' + user_id)) as string
+
     const payloadCreateToken = {
       user_id
     }
@@ -117,7 +99,6 @@ class UserService {
     refreshTokenUsed.push(resultCreateToken?.refresh_token)
     await Promise.all([
       client.hset(user_id, 'refreshTokenUsed', JSON.stringify(refreshTokenUsed)),
-      // client.sadd('refreshTokenUsed_' + user_id, resultCreateToken?.refresh_token as string),
       client.set('rft_' + user_id, resultCreateToken?.refresh_token as string)
     ])
     const optionCookie = handleOptionCookie()
@@ -127,6 +108,22 @@ class UserService {
     return {
       user_id,
       tokens: resultCreateToken
+    }
+  }
+
+  async getInfo(user_id: string) {
+    const user = await getUserById(user_id)
+    return user
+  }
+
+  async socialAuth(payload: SocialAuthRequestPayload, res: Response) {
+    const { email } = payload
+    const user = await findUserByCondition({ email })
+    if (!user) {
+      const newUser = await createUser(payload)
+      return await this.login(newUser, res)
+    } else {
+      return await this.login(user, res)
     }
   }
 }
