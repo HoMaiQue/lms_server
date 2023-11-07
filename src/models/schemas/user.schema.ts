@@ -24,7 +24,7 @@ const userSchema = new Schema<UserDocument>(
       required: true
     },
     email: { type: String, required: true },
-    password: { type: String, required: true },
+    password: { type: String },
     avatar: {
       public_id: String,
       url: String
