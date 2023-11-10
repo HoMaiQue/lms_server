@@ -4,7 +4,12 @@ import crypto from 'node:crypto'
 import { AuthFailureError, BadRequestError, ForbiddenError, NotFoundError } from '~/core/error.response'
 import client from '~/dbs/init.redis'
 import { createUser, findUserByCondition, getUserById } from '~/models/repositories/user.repo'
-import { ActivationTokenPayload, RegisterRequestPayload, SocialAuthRequestPayload } from '~/models/request/user.request'
+import {
+  ActivationTokenPayload,
+  RegisterRequestPayload,
+  SocialAuthRequestPayload,
+  UpdateUserRequestPayload
+} from '~/models/request/user.request'
 import userSchema, { UserDocument } from '~/models/schemas/user.schema'
 import { hashPassword, randomCode } from '~/utils/crypto'
 import { sendVerifyEmailRegister } from '~/utils/email'
@@ -72,7 +77,7 @@ class UserService {
     res.cookie('access_token', '', { maxAge: 1 })
     res.cookie('refresh_token', '', { maxAge: 1 })
 
-    await client.del(user_id)
+    await Promise.all([client.del(user_id), client.del('rft_' + user_id)])
     return true
   }
 
@@ -125,6 +130,25 @@ class UserService {
     } else {
       return await this.login(user, res)
     }
+  }
+
+  async updateUser(user_id: string, payload: UpdateUserRequestPayload) {
+    const updateUser = await userSchema.findOneAndUpdate({ _id: convertToObjectIdMongodb(user_id) }, payload, {
+      new: true
+    })
+    await client.hdel(user_id, 'user')
+    return updateUser
+  }
+
+  async changePassword(user_id: string, password: string) {
+    return await userSchema.findOneAndUpdate(
+      { _id: convertToObjectIdMongodb(user_id) },
+      {
+        $set: {
+          password: hashPassword(password)
+        }
+      }
+    )
   }
 }
 

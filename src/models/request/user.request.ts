@@ -33,3 +33,13 @@ export interface SocialAuthRequestPayload {
   name: string
   avatar: string
 }
+
+export interface UpdateUserRequestPayload {
+  name?: string
+  email?: string
+}
+export interface ChangePasswordRequestBody {
+  password: string
+  confirmPassword: string
+  oldPassword: string
+}
