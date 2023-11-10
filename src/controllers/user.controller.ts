@@ -1,6 +1,12 @@
 import { Request, Response } from 'express'
 import { Created, Ok } from '~/core/success.response'
-import { ActivationTokenPayload, RegisterRequestPayload, SocialAuthRequestPayload } from '~/models/request/user.request'
+import {
+  ActivationTokenPayload,
+  ChangePasswordRequestBody,
+  RegisterRequestPayload,
+  SocialAuthRequestPayload,
+  UpdateUserRequestPayload
+} from '~/models/request/user.request'
 import UserService from '~/services/user.service'
 import { ParamsDictionary } from 'express-serve-static-core'
 import { USER_MESSAGE } from '~/constants/message'
@@ -58,6 +64,21 @@ class UserController {
     return new Ok({
       message: USER_MESSAGE.LOGIN_SUCCESSFUL,
       metaData: await UserService.socialAuth(req.body, res)
+    }).send(res)
+  }
+  updateUser = async (req: Request<ParamsDictionary, any, UpdateUserRequestPayload>, res: Response) => {
+    const user_id = (req.user as HydratedDocument<UserDocument>)._id
+    return new Ok({
+      message: USER_MESSAGE.UPDATE_SUCCESS,
+      metaData: await UserService.updateUser(user_id, req.body)
+    }).send(res)
+  }
+  changePassword = async (req: Request<ParamsDictionary, any, ChangePasswordRequestBody>, res: Response) => {
+    const password = req.body.password
+    const { user_id } = req.decoded_authorization
+    return new Ok({
+      message: USER_MESSAGE.UPDATE_SUCCESS,
+      metaData: await UserService.changePassword(user_id, password)
     }).send(res)
   }
 }

@@ -26,4 +26,6 @@ export const USER_MESSAGE = {
   INVALID_REQUEST: 'Invalid request',
   GET_TOKEN_SUCCESS: 'Get token successfully',
   GET_INFO_SUCCESS: 'Get info successfully',
+  UPDATE_SUCCESS: 'Update  successfully',
+  INCORRECT_CURRENT_PASSWORD: 'Incorrect current password',
 } as const
