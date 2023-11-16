@@ -7,13 +7,14 @@ import morgan from 'morgan'
 import cors from 'cors'
 import instanceMongoDB from '~/dbs/init.mongodb'
 import router from './routes'
+import { initFolder } from './configs/multer.config'
 // import client from './dbs/init.redis'
 // import { initFolder } from './utils/file'
 // import '~/utils/s3'
 // import router from
 dotenv.config()
 const app = express()
-// initFolder()
+initFolder()
 // init middleware
 app.use(morgan('dev'))
 app.use(helmet())

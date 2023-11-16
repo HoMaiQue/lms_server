@@ -27,5 +27,10 @@ export const USER_MESSAGE = {
   GET_TOKEN_SUCCESS: 'Get token successfully',
   GET_INFO_SUCCESS: 'Get info successfully',
   UPDATE_SUCCESS: 'Update  successfully',
-  INCORRECT_CURRENT_PASSWORD: 'Incorrect current password',
+  INCORRECT_CURRENT_PASSWORD: 'Incorrect current password'
 } as const
+
+export const COMMON_MESSAGE = {
+  UPLOAD_SUCCESS: 'Upload successfully'
+} as const
+

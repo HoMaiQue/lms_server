@@ -8,6 +8,7 @@ import {
   ActivationTokenPayload,
   RegisterRequestPayload,
   SocialAuthRequestPayload,
+  UpdateAvatarRequestBody,
   UpdateUserRequestPayload
 } from '~/models/request/user.request'
 import userSchema, { UserDocument } from '~/models/schemas/user.schema'
@@ -141,7 +142,7 @@ class UserService {
   }
 
   async changePassword(user_id: string, password: string) {
-    return await userSchema.findOneAndUpdate(
+    await userSchema.findOneAndUpdate(
       { _id: convertToObjectIdMongodb(user_id) },
       {
         $set: {
@@ -149,6 +150,23 @@ class UserService {
         }
       }
     )
+    await client.hdel(user_id, 'user')
+    return true
+  }
+
+  async updateAvatar(user_id: string, payload: UpdateAvatarRequestBody) {
+    await userSchema.findOneAndUpdate(
+      { _id: convertToObjectIdMongodb(user_id) },
+      {
+        $set: {
+          avatar: {
+            ...payload
+          }
+        }
+      }
+    )
+    await client.hdel(user_id, 'user')
+    return true
   }
 }
 

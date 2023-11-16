@@ -8,7 +8,7 @@ import {
   accessTokenValidator,
   refreshTokenValidator,
   updateUserValidator,
-  changePasswordValidator
+  changePasswordValidator,
 } from '~/middleware/user.middleware'
 
 const userRouter = Router()
@@ -33,6 +33,7 @@ userRouter.patch(
   asyncHandler(UserController.updateUser)
 )
 userRouter.put('/change-password', changePasswordValidator, asyncHandler(UserController.changePassword))
+userRouter.put('/update-avatar', asyncHandler(UserController.updateAvatar))
 userRouter.post('/logout', asyncHandler(UserController.logout))
 
 export default userRouter

@@ -5,6 +5,7 @@ import {
   ChangePasswordRequestBody,
   RegisterRequestPayload,
   SocialAuthRequestPayload,
+  UpdateAvatarRequestBody,
   UpdateUserRequestPayload
 } from '~/models/request/user.request'
 import UserService from '~/services/user.service'
@@ -79,6 +80,14 @@ class UserController {
     return new Ok({
       message: USER_MESSAGE.UPDATE_SUCCESS,
       metaData: await UserService.changePassword(user_id, password)
+    }).send(res)
+  }
+
+  updateAvatar = async (req: Request<ParamsDictionary, any, UpdateAvatarRequestBody>, res: Response) => {
+    const { user_id } = req.decoded_authorization
+    return new Ok({
+      message: USER_MESSAGE.UPDATE_SUCCESS,
+      metaData: await UserService.updateAvatar(user_id, req.body)
     }).send(res)
   }
 }
