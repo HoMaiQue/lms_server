@@ -43,3 +43,7 @@ export interface ChangePasswordRequestBody {
   confirmPassword: string
   oldPassword: string
 }
+export interface UpdateAvatarRequestBody {
+  public_id: string
+  url: string
+}
