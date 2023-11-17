@@ -27,3 +27,23 @@ export interface LoginRequestPayload {
   email: string
   password: string
 }
+
+export interface SocialAuthRequestPayload {
+  email: string
+  name: string
+  avatar: string
+}
+
+export interface UpdateUserRequestPayload {
+  name?: string
+  email?: string
+}
+export interface ChangePasswordRequestBody {
+  password: string
+  confirmPassword: string
+  oldPassword: string
+}
+export interface UpdateAvatarRequestBody {
+  public_id: string
+  url: string
+}

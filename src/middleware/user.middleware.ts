@@ -5,7 +5,7 @@ import { capitalize } from 'lodash'
 import { USER_MESSAGE } from '~/constants/message'
 import { AuthFailureError, ForbiddenError, NotFoundError } from '~/core/error.response'
 import client from '~/dbs/init.redis'
-import { findUserByCondition } from '~/models/repositories/user.repo'
+import { findUserByCondition, getUserById } from '~/models/repositories/user.repo'
 import { hashPassword } from '~/utils/crypto'
 import { verifyJWT } from '~/utils/jwt'
 import { validate } from '~/utils/validation'
@@ -63,26 +63,30 @@ const confirmPasswordSchema: ParamSchema = {
     }
   }
 }
+
+const nameSchema: ParamSchema = {
+  isString: { errorMessage: USER_MESSAGE.NAME_MUST_BE_STRING },
+  notEmpty: { errorMessage: USER_MESSAGE.NAME_IS_REQUIRED },
+  trim: true
+}
+const emailSchema: ParamSchema = {
+  isEmail: { errorMessage: USER_MESSAGE.EMAIL_IS_INVALID },
+  trim: true,
+  custom: {
+    options: async (value) => {
+      const foundEmail = await findUserByCondition({ email: value })
+      if (foundEmail) {
+        throw new Error('Email already exists')
+      }
+    }
+  }
+}
+
 export const registerValidator = validate(
   checkSchema(
     {
-      email: {
-        isEmail: { errorMessage: USER_MESSAGE.EMAIL_IS_INVALID },
-        trim: true,
-        custom: {
-          options: async (value) => {
-            const foundEmail = await findUserByCondition({ email: value })
-            if (foundEmail) {
-              throw new Error('Email already exists')
-            }
-          }
-        }
-      },
-      name: {
-        isString: { errorMessage: USER_MESSAGE.NAME_MUST_BE_STRING },
-        notEmpty: { errorMessage: USER_MESSAGE.NAME_IS_REQUIRED },
-        trim: true
-      },
+      email: emailSchema,
+      name: nameSchema,
       password: passwordSchema,
       confirmPassword: confirmPasswordSchema,
       avatar: {
@@ -96,26 +100,29 @@ export const registerValidator = validate(
 )
 
 export const loginValidator = validate(
-  checkSchema({
-    email: {
-      isEmail: { errorMessage: USER_MESSAGE.EMAIL_IS_INVALID },
-      trim: true,
-      custom: {
-        options: async (value, { req }) => {
-          const user = await findUserByCondition({
-            email: value,
-            password: hashPassword(req.body.password)
-          })
-          if (!user) {
-            throw new Error(USER_MESSAGE.EMAIL_OR_PASSWORD)
+  checkSchema(
+    {
+      email: {
+        isEmail: { errorMessage: USER_MESSAGE.EMAIL_IS_INVALID },
+        trim: true,
+        custom: {
+          options: async (value, { req }) => {
+            const user = await findUserByCondition({
+              email: value,
+              password: hashPassword(req.body.password)
+            })
+            if (!user) {
+              throw new Error(USER_MESSAGE.EMAIL_OR_PASSWORD)
+            }
+            req.user = user
+            return true
           }
-          req.user = user
-          return true
         }
-      }
+      },
+      password: passwordSchema
     },
-    password: passwordSchema
-  })
+    ['body']
+  )
 )
 
 export const accessTokenValidator = validate(
@@ -130,15 +137,9 @@ export const accessTokenValidator = validate(
                 throw new AuthFailureError(USER_MESSAGE.ACCESS_TOKEN_IS_REQUIRED)
               }
               const user_id = (req as any).headers[HEADER.CLIENT_ID]
-              // const user = await client.get(user_id)
-              // const public_key = await client.get('puk_' + user_id)
-              const [user, public_key] = await client.hmget(user_id, 'user', 'public_key')
-
-              const user_parse = JSON.parse(user as string)
-              // const user = await client.get(user_id)
-              // const private_key = await client.get('prk_' + user_id)
-
-              if (!user_parse) {
+              const public_key = await client.hget(user_id, 'public_key')
+              const user = await getUserById(user_id)
+              if (!user) {
                 throw new NotFoundError(USER_MESSAGE.INVALID_REQUEST)
               }
 
@@ -148,6 +149,7 @@ export const accessTokenValidator = validate(
               }
               const decoded_authorization = await verifyJWT({ token: access_token, keySecret: public_key as string })
               ;(req as Request).decoded_authorization = decoded_authorization
+              req.user = user
               return true
             } catch (error) {
               throw new AuthFailureError(capitalize((error as JsonWebTokenError).message))
@@ -183,13 +185,9 @@ export const refreshTokenValidator = validate(
               }
               const refresh_token = (req as any).headers[HEADER.REFRESH_TOKEN]
               const user_id = (req as any).headers[HEADER.CLIENT_ID]
-              const [user, private_key] = await client.hmget(user_id, 'user', 'private_key')
-
-              const user_parse = JSON.parse(user as string)
-              // const user = await client.get(user_id)
-              // const private_key = await client.get('prk_' + user_id)
-
-              if (!user_parse) {
+              const private_key = await client.hget(user_id, 'private_key')
+              const user = await getUserById(user_id)
+              if (!user) {
                 throw new NotFoundError(USER_MESSAGE.INVALID_REQUEST)
               }
               const decoded_refresh_token = await verifyJWT({ token: refresh_token, keySecret: private_key as string })
@@ -205,3 +203,40 @@ export const refreshTokenValidator = validate(
     ['headers']
   )
 )
+
+export const updateUserValidator = validate(
+  checkSchema(
+    {
+      name: { ...nameSchema, optional: true, notEmpty: undefined },
+      email: { ...emailSchema, optional: true, notEmpty: undefined }
+    },
+    ['body']
+  )
+)
+
+export const changePasswordValidator = validate(
+  checkSchema({
+    password: passwordSchema,
+    confirmPassword: confirmPasswordSchema,
+    oldPassword: {
+      ...passwordSchema,
+      custom: {
+        options: async (value, { req }) => {
+          const { user_id } = (req as Request).decoded_authorization
+
+          const foundUser = await getUserById(user_id)
+          if (!foundUser) {
+            throw new AuthFailureError(USER_MESSAGE.ACCESS_TOKEN_IS_INVALID)
+          }
+          const { password } = foundUser
+          const isMatch = hashPassword(value) === password
+          if (!isMatch) {
+            throw new ForbiddenError(USER_MESSAGE.INCORRECT_CURRENT_PASSWORD)
+          }
+        }
+      }
+    }
+  })
+)
+
+

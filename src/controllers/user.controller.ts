@@ -1,6 +1,13 @@
 import { Request, Response } from 'express'
 import { Created, Ok } from '~/core/success.response'
-import { ActivationTokenPayload, RegisterRequestPayload } from '~/models/request/user.request'
+import {
+  ActivationTokenPayload,
+  ChangePasswordRequestBody,
+  RegisterRequestPayload,
+  SocialAuthRequestPayload,
+  UpdateAvatarRequestBody,
+  UpdateUserRequestPayload
+} from '~/models/request/user.request'
 import UserService from '~/services/user.service'
 import { ParamsDictionary } from 'express-serve-static-core'
 import { USER_MESSAGE } from '~/constants/message'
@@ -43,6 +50,44 @@ class UserController {
     return new Ok({
       message: USER_MESSAGE.GET_TOKEN_SUCCESS,
       metaData: await UserService.refreshToken(user_id, refresh_token, res)
+    }).send(res)
+  }
+  getInfo = async (req: Request, res: Response) => {
+    const user = req.user as HydratedDocument<UserDocument>
+    const user_id = user._id.toString()
+    return new Ok({
+      message: USER_MESSAGE.GET_INFO_SUCCESS,
+      metaData: await UserService.getInfo(user_id)
+    }).send(res)
+  }
+
+  socialAuth = async (req: Request<ParamsDictionary, any, SocialAuthRequestPayload>, res: Response) => {
+    return new Ok({
+      message: USER_MESSAGE.LOGIN_SUCCESSFUL,
+      metaData: await UserService.socialAuth(req.body, res)
+    }).send(res)
+  }
+  updateUser = async (req: Request<ParamsDictionary, any, UpdateUserRequestPayload>, res: Response) => {
+    const user_id = (req.user as HydratedDocument<UserDocument>)._id
+    return new Ok({
+      message: USER_MESSAGE.UPDATE_SUCCESS,
+      metaData: await UserService.updateUser(user_id, req.body)
+    }).send(res)
+  }
+  changePassword = async (req: Request<ParamsDictionary, any, ChangePasswordRequestBody>, res: Response) => {
+    const password = req.body.password
+    const { user_id } = req.decoded_authorization
+    return new Ok({
+      message: USER_MESSAGE.UPDATE_SUCCESS,
+      metaData: await UserService.changePassword(user_id, password)
+    }).send(res)
+  }
+
+  updateAvatar = async (req: Request<ParamsDictionary, any, UpdateAvatarRequestBody>, res: Response) => {
+    const { user_id } = req.decoded_authorization
+    return new Ok({
+      message: USER_MESSAGE.UPDATE_SUCCESS,
+      metaData: await UserService.updateAvatar(user_id, req.body)
     }).send(res)
   }
 }
