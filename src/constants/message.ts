@@ -34,3 +34,6 @@ export const COMMON_MESSAGE = {
   UPLOAD_SUCCESS: 'Upload successfully'
 } as const
 
+export const COURSE_MESSAGE = {
+  UPDATE_COURSE_SUCCESS: 'Update course successfully'
+} as const

@@ -134,9 +134,13 @@ class UserService {
   }
 
   async updateUser(user_id: string, payload: UpdateUserRequestPayload) {
-    const updateUser = await userSchema.findOneAndUpdate({ _id: convertToObjectIdMongodb(user_id) }, payload, {
-      new: true
-    })
+    const updateUser = await userSchema.findOneAndUpdate(
+      { _id: convertToObjectIdMongodb(user_id) },
+      { $set: payload },
+      {
+        new: true
+      }
+    )
     await client.hdel(user_id, 'user')
     return updateUser
   }
