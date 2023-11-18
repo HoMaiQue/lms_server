@@ -77,13 +77,12 @@ const courseDataSchema = new Schema<CourseData>({
   title: String,
   description: String,
   videoUrl: String,
-  videoThumbnail: Object,
   videoSection: String,
   videoLength: Number,
   videoPlayer: String,
   links: [linkSchema],
   suggestion: String,
-  questions: [Comment]
+  questions: [commentSchema]
 })
 
 const courseSchema = new Schema<Course>({
@@ -91,7 +90,7 @@ const courseSchema = new Schema<Course>({
   description: { type: String, required: true },
   price: { type: Number, required: true },
   estimatePrice: { type: Number },
-  thumbnail: { public_id: { type: String, required: true }, url: { type: String, required: true } },
+  thumbnail: { public_id: { type: String }, url: { type: String } },
   tags: { type: String, required: true },
   level: { type: String, required: true },
   demoUrl: { type: String, required: true },
