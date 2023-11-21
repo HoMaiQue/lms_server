@@ -20,5 +20,18 @@ class CourseController {
       metaData: await CourseService.updateCourse(course_id, req.body)
     }).send(res)
   }
+  getSingleCourse = async (req: Request, res: Response) => {
+    const course_id = req.params.course_id
+    return new Ok({
+      message: COURSE_MESSAGE.GET_COURSE_SUCCESS,
+      metaData: await CourseService.getSingleCourse(course_id)
+    }).send(res)
+  }
+  getAllCourse = async (req: Request, res: Response) => {
+    return new Ok({
+      message: COURSE_MESSAGE.GET_COURSE_SUCCESS,
+      metaData: await CourseService.getAllCourse()
+    }).send(res)
+  }
 }
 export default new CourseController()
