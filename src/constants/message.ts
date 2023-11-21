@@ -35,5 +35,6 @@ export const COMMON_MESSAGE = {
 } as const
 
 export const COURSE_MESSAGE = {
-  UPDATE_COURSE_SUCCESS: 'Update course successfully'
+  UPDATE_COURSE_SUCCESS: 'Update course successfully',
+  GET_COURSE_SUCCESS: 'Get Course successfully'
 } as const
