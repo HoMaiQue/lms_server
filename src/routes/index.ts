@@ -7,5 +7,6 @@ const router = express.Router()
 
 router.use('/v1/upload', uploadRouter)
 router.use('/v1/user', userRouter)
+router.use('/v1/question', userRouter)
 router.use('/v1/course', courseRouter)
 export default router

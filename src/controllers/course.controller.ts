@@ -4,7 +4,8 @@ import { COMMON_MESSAGE, COURSE_MESSAGE } from '~/constants/message'
 import { Created, Ok } from '~/core/success.response'
 import CourseService from '~/services/course.service'
 import { UpdateCourseRequestBody, uploadCourseRequestBody } from '~/models/request/course.request'
-// import { uploadCourseRequestBody } from '~/models/request/course.request'
+import { HydratedDocument } from 'mongoose'
+import { UserDocument } from '~/models/schemas/user.schema'
 class CourseController {
   uploadCourse = async (req: Request<ParamsDictionary, any, uploadCourseRequestBody>, res: Response) => {
     return new Created({
@@ -13,7 +14,7 @@ class CourseController {
     }).send(res)
   }
 
-  updateCourse = async (req: Request<ParamsDictionary, any, UpdateCourseRequestBody>, res: Response) => {
+  updateCourse = async (req: Request<ParamsDictionary, any, any>, res: Response) => {
     const course_id = req.params.course_id
     return new Ok({
       message: COURSE_MESSAGE.UPDATE_COURSE_SUCCESS,
@@ -31,6 +32,14 @@ class CourseController {
     return new Ok({
       message: COURSE_MESSAGE.GET_COURSE_SUCCESS,
       metaData: await CourseService.getAllCourse()
+    }).send(res)
+  }
+  getCourseByUser = async (req: Request, res: Response) => {
+    const user = req.user as HydratedDocument<UserDocument>
+    const course_id = req.params.course_id
+    return new Ok({
+      message: COURSE_MESSAGE.GET_COURSE_SUCCESS,
+      metaData: await CourseService.getCourseByUser(course_id, user)
     }).send(res)
   }
 }

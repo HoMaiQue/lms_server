@@ -13,8 +13,7 @@ export interface UserDocument extends Document {
   }
   role: string
   isVerified: boolean
-  courses: Array<{ courseId: string }>
-  comparePassword: (password: string) => Promise<boolean>
+  courses: ObjectId[]
 }
 // Declare the Schema of the Mongo model
 const userSchema = new Schema<UserDocument>(
@@ -34,7 +33,7 @@ const userSchema = new Schema<UserDocument>(
       type: Boolean,
       default: false
     },
-    courses: [{ courseId: String }]
+    courses: { type: [Schema.Types.ObjectId], ref: 'Course' },
   },
   {
     timestamps: true,
