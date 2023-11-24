@@ -36,5 +36,13 @@ export const COMMON_MESSAGE = {
 
 export const COURSE_MESSAGE = {
   UPDATE_COURSE_SUCCESS: 'Update course successfully',
-  GET_COURSE_SUCCESS: 'Get Course successfully'
+  GET_COURSE_SUCCESS: 'Get Course successfully',
+  YOU_ARE_NOT_ELIGIBLE_TO_ACCESS_THIS_COURSE: 'you are not eligible to access this course',
+  NOT_FOUND_COURSE: 'Not found Course',
+  NOT_FOUND_LESSON: 'Not found lesson'
+} as const
+
+export const QUESTION_MESSAGE = {
+  NOT_FOUND_QUESTION: 'Not found question',
+  CREATE_QUESTION_SUCCESS: 'Create question successfully'
 } as const
