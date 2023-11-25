@@ -6,5 +6,6 @@ const questionRouter = Router()
 
 questionRouter.use(accessTokenValidator)
 questionRouter.post('', asyncHandler(QuestionController.createQuestion))
+questionRouter.get('', asyncHandler(QuestionController.getListQuestion))
 
 export default questionRouter

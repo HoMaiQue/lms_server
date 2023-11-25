@@ -35,6 +35,14 @@ class QuestionService {
         'question_right',
         { sort: { question_right: -1 } }
       )
+      const maxRightValue12 = await questionSchema.findOne(
+        {
+          question_lessonId: convertToObjectIdMongodb(lessonId)
+        },
+        'question_right',
+        { sort: { question_right: -1 } }
+      )
+      console.log(maxRightValue12)
       if (maxRightValue) {
         rightValue = maxRightValue.question_right + 1
       } else {
@@ -114,35 +122,35 @@ class QuestionService {
     await questionSchema.updateMany(
       {
         question_lessonId: convertToObjectIdMongodb(lessonId),
-        comment_right: { $gte: startValue }
+        question_right: { $gte: startValue }
       },
-      { $inc: { comment_right: amount } }
+      { $inc: { question_right: amount } }
     )
 
     await questionSchema.updateMany(
       {
         question_lessonId: convertToObjectIdMongodb(lessonId),
-        comment_left: { $gt: startValue }
+        question_left: { $gt: startValue }
       },
-      { $inc: { comment_left: amount } }
+      { $inc: { question_left: amount } }
     )
   }
 
   static async decrementQuestionValues(lessonId: string, startValue: number, amount: number) {
     await questionSchema.updateMany(
       {
-        comment_productId: convertToObjectIdMongodb(lessonId),
-        comment_right: { $gt: startValue }
+        question_lessonId: convertToObjectIdMongodb(lessonId),
+        question_right: { $gt: startValue }
       },
-      { $inc: { comment_right: -amount } }
+      { $inc: { question_right: -amount } }
     )
 
     await questionSchema.updateMany(
       {
-        comment_productId: convertToObjectIdMongodb(lessonId),
-        comment_left: { $gt: startValue }
+        question_lessonId: convertToObjectIdMongodb(lessonId),
+        question_left: { $gt: startValue }
       },
-      { $inc: { comment_left: -amount } }
+      { $inc: { question_left: -amount } }
     )
   }
 }

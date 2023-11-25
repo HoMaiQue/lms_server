@@ -44,5 +44,7 @@ export const COURSE_MESSAGE = {
 
 export const QUESTION_MESSAGE = {
   NOT_FOUND_QUESTION: 'Not found question',
-  CREATE_QUESTION_SUCCESS: 'Create question successfully'
+  CREATE_QUESTION_SUCCESS: 'Create question successfully',
+  DELETE_QUESTION_SUCCESS: 'Delete question successfully',
+  GET_LIST_QUESTION_SUCCESS: 'Get list question successfully'
 } as const
