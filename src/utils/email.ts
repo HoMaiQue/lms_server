@@ -1,11 +1,11 @@
 /* eslint-disable no-undef */
 import { SendEmailCommand, SESClient } from '@aws-sdk/client-ses'
-
 import { config } from 'dotenv'
 import fs from 'fs'
 import path from 'path'
 config()
 export const verifyEmailTemplate = fs.readFileSync(path.resolve('src/templates/verify-email.html'), 'utf8')
+export const emailConfirmOrder = fs.readFileSync(path.resolve('src/templates/order-confirm.html'), 'utf8')
 
 // Create SES service object.
 const sesClient = new SESClient({
@@ -70,10 +70,9 @@ const sendVerifyEmail = async (toAddress: string, subject: string, body: string)
 
 export const sendVerifyEmailRegister = async (
   toAddress: string,
-  // email_verify_token?: string,
   name: string,
   activationCode: string,
-  template: string = verifyEmailTemplate,
+  template: string = verifyEmailTemplate
 ) => {
   return sendVerifyEmail(
     toAddress,
@@ -82,4 +81,20 @@ export const sendVerifyEmailRegister = async (
     // .replace('{{link}}', `${process.env.CLIENT_URL}/verify-email?token=${email_verify_token}`)
   )
 }
-
+export const sendEmailConfirmOrder = async (
+  toAddress: string,
+  order: { name: string; order_number: string; date: string; course_name: string; quantity: number; price: number },
+  template: string = emailConfirmOrder
+) => {
+  return sendVerifyEmail(
+    toAddress,
+    'Confirm Order',
+    template
+      .replace('{{name}}', order.name)
+      .replace('{{order_number}}', order.order_number)
+      .replace('{{date}}', order.date)
+      .replace('{{course_number}}', order.course_name)
+      .replace('{{quantity}}', order.quantity.toString())
+      .replace('{{price}}', order.price.toString())
+  )
+}
