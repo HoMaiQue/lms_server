@@ -8,8 +8,8 @@ interface Review extends Document {
   review_rating: number
   review_userId: ObjectId
   review_content: string
-  review_parentId: ObjectId
-  isDeleted: boolean
+  review_parentId: ObjectId 
+  isDeleted: boolean,
 }
 // Declare the Schema of the Mongo model
 const questionSchema = new Schema<Review>(
@@ -34,6 +34,7 @@ const questionSchema = new Schema<Review>(
       type: Number,
       default: 0
     },
+  
     isDeleted: {
       type: Boolean,
       default: false

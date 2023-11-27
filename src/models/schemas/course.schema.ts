@@ -29,6 +29,8 @@ interface Course extends Document {
   reviews: string[]
   courseData: ObjectId[]
   ratings?: number
+  number_of_rating: number
+  total_score: number,
   purchased?: number
 }
 
@@ -65,7 +67,15 @@ const courseSchema = new Schema<Course>(
     reviews: { type: [String], default: [] },
     courseData: [{ type: Schema.Types.ObjectId, ref: 'CourseData' }],
     ratings: { type: Number, default: 0 },
-    purchased: { type: Number, default: 0 }
+    purchased: { type: Number, default: 0 },
+    number_of_rating: {
+      type: Number,
+      default: 0
+    },
+    total_score: {
+      type: Number,
+      default: 0
+    },
   },
   {
     timestamps: true,

@@ -39,7 +39,8 @@ export const COURSE_MESSAGE = {
   GET_COURSE_SUCCESS: 'Get Course successfully',
   YOU_ARE_NOT_ELIGIBLE_TO_ACCESS_THIS_COURSE: 'you are not eligible to access this course',
   NOT_FOUND_COURSE: 'Not found Course',
-  NOT_FOUND_LESSON: 'Not found lesson'
+  NOT_FOUND_LESSON: 'Not found lesson',
+  YOU_HAVE_ALREADY_PURCHASED: 'You have already purchased this course'
 } as const
 
 export const QUESTION_MESSAGE = {
@@ -47,4 +48,14 @@ export const QUESTION_MESSAGE = {
   CREATE_QUESTION_SUCCESS: 'Create question successfully',
   DELETE_QUESTION_SUCCESS: 'Delete question successfully',
   GET_LIST_QUESTION_SUCCESS: 'Get list question successfully'
+} as const
+
+export const REVIEW_MESSAGE = {
+  NOT_FOUND_REVIEW: 'Not found review',
+  CREATE_REVIEW_SUCCESS: 'Create review successfully',
+  GET_LIST_REVIEW_SUCCESS: 'Get list review successfully'
+} as const
+
+export const ORDER_MESSAGE = {
+  CREATE_ORDER_SUCCESS: 'Create order successfully'
 } as const
