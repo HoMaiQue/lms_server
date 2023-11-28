@@ -59,3 +59,8 @@ export const REVIEW_MESSAGE = {
 export const ORDER_MESSAGE = {
   CREATE_ORDER_SUCCESS: 'Create order successfully'
 } as const
+
+export const NOTIFICATION_MESSAGE = {
+  GET_NOTIFICATION_SUCCESS: 'Get notification successfully',
+  NOT_FOUND_NOTIFICATION: 'Not found notification'
+} as const

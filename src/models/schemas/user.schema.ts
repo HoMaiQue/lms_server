@@ -33,7 +33,7 @@ const userSchema = new Schema<UserDocument>(
       type: Boolean,
       default: false
     },
-    courses: { type: [Schema.Types.ObjectId], ref: 'Course' },
+    courses: { type: [Schema.Types.ObjectId], ref: 'Course' }
   },
   {
     timestamps: true,
