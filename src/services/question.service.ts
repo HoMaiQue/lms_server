@@ -5,6 +5,7 @@ import { getQuestionById } from '~/models/repositories/question.repo'
 import { CreateQuestionRequest } from '~/models/request/question.request'
 import questionSchema from '~/models/schemas/question.schema'
 import { convertToObjectIdMongodb } from '~/utils/formatter'
+import notificationService from './notification.service'
 
 class QuestionService {
   static async createQuestion({ lessonId, userId, content, parentQuestionId = null }: CreateQuestionRequest) {
@@ -35,22 +36,22 @@ class QuestionService {
         'question_right',
         { sort: { question_right: -1 } }
       )
-      const maxRightValue12 = await questionSchema.findOne(
-        {
-          question_lessonId: convertToObjectIdMongodb(lessonId)
-        },
-        'question_right',
-        { sort: { question_right: -1 } }
-      )
-      console.log(maxRightValue12)
+
       if (maxRightValue) {
         rightValue = maxRightValue.question_right + 1
       } else {
         rightValue = 1
       }
+      //create notification
+      await notificationService.createNotification({
+        user: userId,
+        title: 'New Question receive',
+        message: `You have a new question in  from  ${foundLesson.title}`
+      })
     }
     question.question_left = rightValue
     question.question_right = rightValue + 1
+
     await question.save()
     return question
   }

@@ -3,11 +3,11 @@ import { COURSE_MESSAGE } from '~/constants/message'
 import { ForbiddenError, NotFoundError } from '~/core/error.response'
 import { getCourseById } from '~/models/repositories/course.repo'
 import { CreateOrderRequest } from '~/models/request/order.request'
-import notificationSchema from '~/models/schemas/notification.schema'
 import orderSchema from '~/models/schemas/order.schema'
 import { UserDocument } from '~/models/schemas/user.schema'
 import { sendEmailConfirmOrder } from '~/utils/email'
 import { formatDateString } from '~/utils/formatter'
+import notificationService from './notification.service'
 
 class OrderService {
   async createOrder(user: HydratedDocument<UserDocument>, { course_id, payment_info }: CreateOrderRequest) {
@@ -37,7 +37,7 @@ class OrderService {
       price: foundCourse.price
     }
     // send email
-    await notificationSchema.create({
+    await notificationService.createNotification({
       user: user._id,
       title: 'New Order',
       message: `You have a new order from  ${foundCourse.name}`

@@ -1,7 +1,7 @@
 import { Response } from 'express'
 import { HydratedDocument } from 'mongoose'
 import crypto from 'node:crypto'
-import { AuthFailureError, BadRequestError, ForbiddenError, NotFoundError } from '~/core/error.response'
+import { AuthFailureError, BadRequestError, ForbiddenError } from '~/core/error.response'
 import client from '~/dbs/init.redis'
 import { createUser, findUserByCondition, getUserById } from '~/models/repositories/user.repo'
 import {
