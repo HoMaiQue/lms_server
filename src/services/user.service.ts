@@ -1,9 +1,11 @@
 import { Response } from 'express'
 import { HydratedDocument } from 'mongoose'
 import crypto from 'node:crypto'
-import { AuthFailureError, BadRequestError, ForbiddenError } from '~/core/error.response'
+import { USER_MESSAGE } from '~/constants/message'
+import { AuthFailureError, BadRequestError, ForbiddenError, NotFoundError } from '~/core/error.response'
 import client from '~/dbs/init.redis'
 import { createUser, findUserByCondition, getUserById } from '~/models/repositories/user.repo'
+import { QueryRequest } from '~/models/request/common.request'
 import {
   ActivationTokenPayload,
   RegisterRequestPayload,
@@ -170,6 +172,25 @@ class UserService {
       }
     )
     await client.hdel(user_id, 'user')
+    return true
+  }
+
+  async getAllUser({ page = '1', limit = '50' }: QueryRequest) {
+    const skip = (+page - 1) * +limit
+    return await userSchema.find().sort({ createdAt: -1 }).skip(skip).limit(+limit)
+  }
+
+  async updateRoleUser({ user_id, role }: { user_id: string; role: string }) {
+    return await userSchema.findOneAndUpdate({ _id: convertToObjectIdMongodb(user_id) }, { role }, { new: true })
+  }
+
+  async deleteUser(user_id: string) {
+    const foundUser = await getUserById(user_id)
+    if (!foundUser) {
+      throw new NotFoundError(USER_MESSAGE.NOT_FOUND_USER)
+    }
+    await userSchema.deleteOne({ _id: convertToObjectIdMongodb(user_id) })
+    await client.del(user_id)
     return true
   }
 }

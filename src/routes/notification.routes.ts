@@ -11,6 +11,5 @@ notificationRouter.post(
   authorizeRoles('admin'),
   asyncHandler(NotificationController.updateNotification)
 )
-// orderRouter.get('', asyncHandler(ReviewController.getListReview))
 
 export default notificationRouter

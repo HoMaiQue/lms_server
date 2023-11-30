@@ -27,7 +27,10 @@ export const USER_MESSAGE = {
   GET_TOKEN_SUCCESS: 'Get token successfully',
   GET_INFO_SUCCESS: 'Get info successfully',
   UPDATE_SUCCESS: 'Update  successfully',
-  INCORRECT_CURRENT_PASSWORD: 'Incorrect current password'
+  INCORRECT_CURRENT_PASSWORD: 'Incorrect current password',
+  UPDATE_ROLE_SUCCESS: 'Update role successfully',
+  NOT_FOUND_USER: 'Not found user',
+  DELETE_USER_SUCCESS: 'Delete user successfully'
 } as const
 
 export const COMMON_MESSAGE = {
@@ -40,7 +43,8 @@ export const COURSE_MESSAGE = {
   YOU_ARE_NOT_ELIGIBLE_TO_ACCESS_THIS_COURSE: 'you are not eligible to access this course',
   NOT_FOUND_COURSE: 'Not found Course',
   NOT_FOUND_LESSON: 'Not found lesson',
-  YOU_HAVE_ALREADY_PURCHASED: 'You have already purchased this course'
+  YOU_HAVE_ALREADY_PURCHASED: 'You have already purchased this course',
+  DELETE_COURSE_SUCCESS: 'Delete course successfully'
 } as const
 
 export const QUESTION_MESSAGE = {
@@ -57,7 +61,8 @@ export const REVIEW_MESSAGE = {
 } as const
 
 export const ORDER_MESSAGE = {
-  CREATE_ORDER_SUCCESS: 'Create order successfully'
+  CREATE_ORDER_SUCCESS: 'Create order successfully',
+  GET_ORDER_SUCCESS: 'Get order successfully'
 } as const
 
 export const NOTIFICATION_MESSAGE = {

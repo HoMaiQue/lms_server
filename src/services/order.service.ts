@@ -8,6 +8,7 @@ import { UserDocument } from '~/models/schemas/user.schema'
 import { sendEmailConfirmOrder } from '~/utils/email'
 import { formatDateString } from '~/utils/formatter'
 import notificationService from './notification.service'
+import { QueryRequest } from '~/models/request/common.request'
 
 class OrderService {
   async createOrder(user: HydratedDocument<UserDocument>, { course_id, payment_info }: CreateOrderRequest) {
@@ -51,6 +52,10 @@ class OrderService {
     await foundCourse.save()
 
     return order
+  }
+  async getAllOrder({ page = '1', limit = '50' }: QueryRequest) {
+    const skip = (+page - 1) * +limit
+    return await orderSchema.find().sort({ createdAt: -1 }).skip(skip).limit(+limit)
   }
 }
 

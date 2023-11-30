@@ -6,6 +6,6 @@ const orderRouter = Router()
 
 orderRouter.use(accessTokenValidator)
 orderRouter.post('', asyncHandler(OrderController.createOrder))
-// orderRouter.get('', asyncHandler(ReviewController.getListReview))
+orderRouter.get('', asyncHandler(OrderController.getAllOrder))
 
 export default orderRouter
