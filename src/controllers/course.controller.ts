@@ -6,6 +6,7 @@ import CourseService from '~/services/course.service'
 import { UpdateCourseRequestBody, uploadCourseRequestBody } from '~/models/request/course.request'
 import { HydratedDocument } from 'mongoose'
 import { UserDocument } from '~/models/schemas/user.schema'
+import { QueryRequest } from '~/models/request/common.request'
 class CourseController {
   uploadCourse = async (req: Request<ParamsDictionary, any, uploadCourseRequestBody>, res: Response) => {
     return new Created({
@@ -40,6 +41,18 @@ class CourseController {
     return new Ok({
       message: COURSE_MESSAGE.GET_COURSE_SUCCESS,
       metaData: await CourseService.getCourseByUser(course_id, user)
+    }).send(res)
+  }
+  getAllCourseByAdmin = async (req: Request<ParamsDictionary, any, any, any>, res: Response) => {
+    return new Ok({
+      message: COURSE_MESSAGE.GET_COURSE_SUCCESS,
+      metaData: await CourseService.getAllCourseByAdmin(req.query)
+    }).send(res)
+  }
+  deleteCourse = async (req: Request<ParamsDictionary, any, any, any>, res: Response) => {
+    return new Ok({
+      message: COURSE_MESSAGE.DELETE_COURSE_SUCCESS,
+      metaData: await CourseService.deleteCourse(req.params.course_id)
     }).send(res)
   }
 }

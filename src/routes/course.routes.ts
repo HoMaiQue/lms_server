@@ -10,7 +10,9 @@ courseRouter.get('', asyncHandler(CourseController.getAllCourse))
 
 courseRouter.use(accessTokenValidator)
 courseRouter.post('', authorizeRoles('admin'), asyncHandler(CourseController.uploadCourse))
+courseRouter.get('/all', authorizeRoles('admin'), asyncHandler(CourseController.getAllCourseByAdmin))
 courseRouter.get('/course-content/:course_id', asyncHandler(CourseController.getCourseByUser))
+courseRouter.delete('/:course_id', asyncHandler(CourseController.deleteCourse))
 courseRouter.patch(
   '/:course_id',
   filterMiddleware([
