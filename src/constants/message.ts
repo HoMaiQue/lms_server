@@ -30,7 +30,8 @@ export const USER_MESSAGE = {
   INCORRECT_CURRENT_PASSWORD: 'Incorrect current password',
   UPDATE_ROLE_SUCCESS: 'Update role successfully',
   NOT_FOUND_USER: 'Not found user',
-  DELETE_USER_SUCCESS: 'Delete user successfully'
+  DELETE_USER_SUCCESS: 'Delete user successfully',
+  GET_ANALYTICS_USER_SUCCESS: 'Get analytics user successfully'
 } as const
 
 export const COMMON_MESSAGE = {
@@ -44,7 +45,9 @@ export const COURSE_MESSAGE = {
   NOT_FOUND_COURSE: 'Not found Course',
   NOT_FOUND_LESSON: 'Not found lesson',
   YOU_HAVE_ALREADY_PURCHASED: 'You have already purchased this course',
-  DELETE_COURSE_SUCCESS: 'Delete course successfully'
+  DELETE_COURSE_SUCCESS: 'Delete course successfully',
+  GET_ANALYTICS_COURSE_SUCCESS: 'Get analytics course successfully'
+
 } as const
 
 export const QUESTION_MESSAGE = {
@@ -62,10 +65,14 @@ export const REVIEW_MESSAGE = {
 
 export const ORDER_MESSAGE = {
   CREATE_ORDER_SUCCESS: 'Create order successfully',
-  GET_ORDER_SUCCESS: 'Get order successfully'
+  GET_ORDER_SUCCESS: 'Get order successfully',
+  GET_ANALYTICS_ORDER_SUCCESS: 'Get analytics order successfully'
+
 } as const
 
 export const NOTIFICATION_MESSAGE = {
   GET_NOTIFICATION_SUCCESS: 'Get notification successfully',
-  NOT_FOUND_NOTIFICATION: 'Not found notification'
+  NOT_FOUND_NOTIFICATION: 'Not found notification',
+  GET_ANALYTICS_NOTIFICATION_SUCCESS: 'Get analytics notification successfully'
+
 } as const

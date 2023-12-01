@@ -109,6 +109,12 @@ class UserController {
       metaData: await UserService.deleteUser(req.params.user_id)
     }).send(res)
   }
+  getUserAnalysis = async (req: Request, res: Response) => {
+    return new Ok({
+      message: USER_MESSAGE.GET_ANALYTICS_USER_SUCCESS,
+      metaData: await UserService.getUserAnalysis()
+    }).send(res)
+  }
 }
 
 export default new UserController()

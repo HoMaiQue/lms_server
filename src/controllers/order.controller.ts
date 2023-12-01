@@ -21,5 +21,11 @@ class OrderController {
       metaData: await OrderService.getAllOrder(req.query)
     }).send(res)
   }
+  getOrderAnalysis = async (req: Request, res: Response) => {
+    return new Ok({
+      message: ORDER_MESSAGE.GET_ANALYTICS_ORDER_SUCCESS,
+      metaData: await OrderService.getOrderAnalysis()
+    }).send(res)
+  }
 }
 export default new OrderController()
