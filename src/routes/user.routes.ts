@@ -29,6 +29,7 @@ userRouter.get('/me', asyncHandler(UserController.getInfo))
 userRouter.get('', authorizeRoles('admin'), asyncHandler(UserController.getAllUser))
 userRouter.put('/update-role/:user_id', authorizeRoles('admin'), asyncHandler(UserController.updateRoleUser))
 userRouter.delete('/:user_id', authorizeRoles('admin'), asyncHandler(UserController.deleteUser))
+userRouter.get('/analytics', authorizeRoles('admin'), asyncHandler(UserController.getUserAnalysis))
 
 userRouter.patch(
   '/update',

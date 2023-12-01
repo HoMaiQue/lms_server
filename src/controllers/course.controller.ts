@@ -55,5 +55,11 @@ class CourseController {
       metaData: await CourseService.deleteCourse(req.params.course_id)
     }).send(res)
   }
+  getCourseAnalysis = async (req: Request, res: Response) => {
+    return new Ok({
+      message: COURSE_MESSAGE.GET_ANALYTICS_COURSE_SUCCESS,
+      metaData: await CourseService.getCourseAnalysis()
+    }).send(res)
+  }
 }
 export default new CourseController()

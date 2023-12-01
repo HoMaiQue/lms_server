@@ -8,6 +8,7 @@ import { uploadCourseRequestBody } from '~/models/request/course.request'
 import courseSchema from '~/models/schemas/course.schema'
 import courseDataSchema from '~/models/schemas/courseData.schema'
 import { UserDocument } from '~/models/schemas/user.schema'
+import { generateLast12MonthsData } from '~/utils/analytics'
 import { convertToObjectIdMongodb, unGetSelectData } from '~/utils/formatter'
 
 class CourseService {
@@ -80,8 +81,11 @@ class CourseService {
       throw new NotFoundError(COURSE_MESSAGE.NOT_FOUND_COURSE)
     }
     await courseSchema.deleteOne({ _id: convertToObjectIdMongodb(course_id) })
-    await client.del("allCourse")
+    await client.del('allCourse')
     return true
+  }
+  async getCourseAnalysis() {
+    return await generateLast12MonthsData(courseSchema)
   }
 }
 export default new CourseService()

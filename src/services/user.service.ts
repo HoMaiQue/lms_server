@@ -14,6 +14,7 @@ import {
   UpdateUserRequestPayload
 } from '~/models/request/user.request'
 import userSchema, { UserDocument } from '~/models/schemas/user.schema'
+import { generateLast12MonthsData } from '~/utils/analytics'
 import { hashPassword, randomCode } from '~/utils/crypto'
 import { sendVerifyEmailRegister } from '~/utils/email'
 import { convertToObjectIdMongodb } from '~/utils/formatter'
@@ -192,6 +193,10 @@ class UserService {
     await userSchema.deleteOne({ _id: convertToObjectIdMongodb(user_id) })
     await client.del(user_id)
     return true
+  }
+
+  async getUserAnalysis(){
+    return await generateLast12MonthsData(userSchema)
   }
 }
 
