@@ -1,6 +1,7 @@
-import cloudinary from '~/configs/cloudinary.config'
-import { s3, PutObjectCommand, GetObjectCommand } from '~/configs/s3.config'
+import fsPromise from 'fs/promises'
 import crypto from 'node:crypto'
+import cloudinary from '~/configs/cloudinary.config'
+import { PutObjectCommand, s3 } from '~/configs/s3.config'
 // import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
 import { getSignedUrl } from '@aws-sdk/cloudfront-signer'
 const randomName = () => crypto.randomBytes(16).toString('hex')
@@ -28,6 +29,7 @@ class UploadService {
         folder: folderName,
         width: 150
       })
+      await fsPromise.unlink(path)
       return {
         image_url: result.secure_url,
         public_id: result.public_id,
@@ -35,7 +37,7 @@ class UploadService {
           height: 200,
           width: 200,
           format: 'jpg'
-        }),
+        })
       }
     } catch (error) {
       console.error('Error uploading image from local', error)

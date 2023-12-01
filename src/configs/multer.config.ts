@@ -38,11 +38,9 @@ export const uploadDisk = multer({
     },
     filename: function (req, file, cb) {
       cb(null, `${Date.now()}-${file.originalname}`)
-    },
-   
+    }
   }),
   fileFilter: (req, file, cb) => {
-    console.log(123)
     if (file.mimetype.includes('image/')) {
       cb(null, true)
     } else {

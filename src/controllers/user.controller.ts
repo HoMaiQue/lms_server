@@ -13,6 +13,7 @@ import { ParamsDictionary } from 'express-serve-static-core'
 import { USER_MESSAGE } from '~/constants/message'
 import { UserDocument } from '~/models/schemas/user.schema'
 import { HydratedDocument } from 'mongoose'
+import { QueryRequest } from '~/models/request/common.request'
 class UserController {
   register = async (req: Request<ParamsDictionary, any, RegisterRequestPayload>, res: Response) => {
     return new Created({
@@ -88,6 +89,30 @@ class UserController {
     return new Ok({
       message: USER_MESSAGE.UPDATE_SUCCESS,
       metaData: await UserService.updateAvatar(user_id, req.body)
+    }).send(res)
+  }
+  getAllUser = async (req: Request<ParamsDictionary, any, any, any>, res: Response) => {
+    return new Ok({
+      message: USER_MESSAGE.UPDATE_SUCCESS,
+      metaData: await UserService.getAllUser(req.query)
+    }).send(res)
+  }
+  updateRoleUser = async (req: Request, res: Response) => {
+    return new Ok({
+      message: USER_MESSAGE.UPDATE_ROLE_SUCCESS,
+      metaData: await UserService.updateRoleUser({ user_id: req.params.user_id, role: req.body.role })
+    }).send(res)
+  }
+  deleteUser = async (req: Request, res: Response) => {
+    return new Ok({
+      message: USER_MESSAGE.DELETE_USER_SUCCESS,
+      metaData: await UserService.deleteUser(req.params.user_id)
+    }).send(res)
+  }
+  getUserAnalysis = async (req: Request, res: Response) => {
+    return new Ok({
+      message: USER_MESSAGE.GET_ANALYTICS_USER_SUCCESS,
+      metaData: await UserService.getUserAnalysis()
     }).send(res)
   }
 }

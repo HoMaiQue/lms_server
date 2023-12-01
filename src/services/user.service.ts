@@ -1,9 +1,11 @@
 import { Response } from 'express'
 import { HydratedDocument } from 'mongoose'
 import crypto from 'node:crypto'
+import { USER_MESSAGE } from '~/constants/message'
 import { AuthFailureError, BadRequestError, ForbiddenError, NotFoundError } from '~/core/error.response'
 import client from '~/dbs/init.redis'
 import { createUser, findUserByCondition, getUserById } from '~/models/repositories/user.repo'
+import { QueryRequest } from '~/models/request/common.request'
 import {
   ActivationTokenPayload,
   RegisterRequestPayload,
@@ -12,6 +14,7 @@ import {
   UpdateUserRequestPayload
 } from '~/models/request/user.request'
 import userSchema, { UserDocument } from '~/models/schemas/user.schema'
+import { generateLast12MonthsData } from '~/utils/analytics'
 import { hashPassword, randomCode } from '~/utils/crypto'
 import { sendVerifyEmailRegister } from '~/utils/email'
 import { convertToObjectIdMongodb } from '~/utils/formatter'
@@ -134,9 +137,13 @@ class UserService {
   }
 
   async updateUser(user_id: string, payload: UpdateUserRequestPayload) {
-    const updateUser = await userSchema.findOneAndUpdate({ _id: convertToObjectIdMongodb(user_id) }, payload, {
-      new: true
-    })
+    const updateUser = await userSchema.findOneAndUpdate(
+      { _id: convertToObjectIdMongodb(user_id) },
+      { $set: payload },
+      {
+        new: true
+      }
+    )
     await client.hdel(user_id, 'user')
     return updateUser
   }
@@ -167,6 +174,29 @@ class UserService {
     )
     await client.hdel(user_id, 'user')
     return true
+  }
+
+  async getAllUser({ page = '1', limit = '50' }: QueryRequest) {
+    const skip = (+page - 1) * +limit
+    return await userSchema.find().sort({ createdAt: -1 }).skip(skip).limit(+limit)
+  }
+
+  async updateRoleUser({ user_id, role }: { user_id: string; role: string }) {
+    return await userSchema.findOneAndUpdate({ _id: convertToObjectIdMongodb(user_id) }, { role }, { new: true })
+  }
+
+  async deleteUser(user_id: string) {
+    const foundUser = await getUserById(user_id)
+    if (!foundUser) {
+      throw new NotFoundError(USER_MESSAGE.NOT_FOUND_USER)
+    }
+    await userSchema.deleteOne({ _id: convertToObjectIdMongodb(user_id) })
+    await client.del(user_id)
+    return true
+  }
+
+  async getUserAnalysis(){
+    return await generateLast12MonthsData(userSchema)
   }
 }
 
