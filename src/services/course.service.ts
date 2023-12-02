@@ -39,7 +39,7 @@ class CourseService {
       if (!course) {
         throw new NotFoundError(COURSE_MESSAGE.NOT_FOUND_COURSE)
       }
-      await client.set(course_id, JSON.stringify(course))
+      await client.set(course_id, JSON.stringify(course), 'EX', 7 * 24 * 60 * 60 * 1000)
       return course
     }
     return JSON.parse(isCacheExist)
