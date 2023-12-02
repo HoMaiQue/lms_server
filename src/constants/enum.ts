@@ -2,6 +2,11 @@ export enum ROLE {
   client = 'client',
   vendor = 'vendor'
 }
+export enum LayoutType {
+  Banner = 'Banner',
+  Faq = 'Faq',
+  Category = 'Category'
+}
 export enum UserVerifyStatus {
   Unverified,
   Verified,

@@ -47,7 +47,6 @@ export const COURSE_MESSAGE = {
   YOU_HAVE_ALREADY_PURCHASED: 'You have already purchased this course',
   DELETE_COURSE_SUCCESS: 'Delete course successfully',
   GET_ANALYTICS_COURSE_SUCCESS: 'Get analytics course successfully'
-
 } as const
 
 export const QUESTION_MESSAGE = {
@@ -67,12 +66,18 @@ export const ORDER_MESSAGE = {
   CREATE_ORDER_SUCCESS: 'Create order successfully',
   GET_ORDER_SUCCESS: 'Get order successfully',
   GET_ANALYTICS_ORDER_SUCCESS: 'Get analytics order successfully'
-
 } as const
 
 export const NOTIFICATION_MESSAGE = {
   GET_NOTIFICATION_SUCCESS: 'Get notification successfully',
   NOT_FOUND_NOTIFICATION: 'Not found notification',
   GET_ANALYTICS_NOTIFICATION_SUCCESS: 'Get analytics notification successfully'
+} as const
 
+export const LAYOUT_MESSAGE = {
+  CREATE_LAYOUT_SUCCESS: 'Create layout successfully',
+  TYPE_ALREADY_EXISTENT: 'Type already exists',
+  NOT_FOUND_LAYOUT: 'Not found layout',
+  UPDATE_LAYOUT_SUCCESS: 'Update layout successfully',
+  GET_LAYOUT_SUCCESS: 'Get layout successfully'
 } as const
