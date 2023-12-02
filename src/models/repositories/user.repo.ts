@@ -11,9 +11,9 @@ export const getUserById = async (user_id: string) => {
   if (!user) {
     const foundUser = await userSchema.findById(convertToObjectIdMongodb(user_id)).lean()
     await client.hset(user_id, 'user', JSON.stringify(foundUser))
-    return foundUser 
+    return foundUser
   }
-  return JSON.parse(user) 
+  return JSON.parse(user)
 }
 
 export const createUser = async (payload: { email: string; name: string; password?: string; avatar?: string }) => {
