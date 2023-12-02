@@ -108,7 +108,7 @@ class UserService {
     refreshTokenUsed.push(resultCreateToken?.refresh_token)
     await Promise.all([
       client.hset(user_id, 'refreshTokenUsed', JSON.stringify(refreshTokenUsed)),
-      client.set('rft_' + user_id, resultCreateToken?.refresh_token as string)
+      client.set('rft_' + user_id, resultCreateToken?.refresh_token as string, 'EX', 100 * 24 * 60 * 60)
     ])
     const optionCookie = handleOptionCookie()
 
@@ -195,7 +195,7 @@ class UserService {
     return true
   }
 
-  async getUserAnalysis(){
+  async getUserAnalysis() {
     return await generateLast12MonthsData(userSchema)
   }
 }
