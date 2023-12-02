@@ -32,7 +32,7 @@ export const signRefreshToken = ({ payload, key, options = { algorithm: 'HS256' 
       if (error) {
         throw reject(error)
       }
-      client.set('rft_' + payload.user_id, token as string, 'EX', 100 * 24 * 60 * 60, (err, result) => {
+      client.set('rft_' + payload.user_id, token as string, 'EX', 1 * 24 * 60 * 60 * 1000, (err, result) => {
         if (err) {
           throw reject(error)
         }
